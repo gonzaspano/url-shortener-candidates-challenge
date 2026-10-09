@@ -8,6 +8,10 @@ services:
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-url_shortener}:${POSTGRES_PASSWORD:-url_shortener}@db:5432/${POSTGRES_DB:-url_shortener}
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:17-alpine
