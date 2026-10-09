@@ -8,3 +8,10 @@ export {
   type ShortenUrlInput,
   type ShortenUrlOutput,
 } from "./shorten-url/shorten-url";
+export type { Logger } from "./ports/logger";
+export {
+  ResolveShortLink,
+  type ResolveShortLinkDependencies,
+  type ResolveShortLinkInput,
+  type ResolveShortLinkOutput,
+} from "./resolve-short-link/resolve-short-link";

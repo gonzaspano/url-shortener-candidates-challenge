@@ -30,7 +30,7 @@ class SequenceGenerator implements ShortCodeGenerator {
   }
 }
 
-class FakeRepository implements ShortLinkRepository {
+class FakeShortLinkRepository implements ShortLinkRepository {
   saveAttempts = 0;
   saved: ShortLink[] = [];
   constructor(private readonly failures: Error[] = []) {}
@@ -54,27 +54,27 @@ function build(options: {
   ownHost?: string;
 } = {}) {
   const clock = new FixedClock();
-  const repository = new FakeRepository(options.failures);
+  const shortLinkRepository = new FakeShortLinkRepository(options.failures);
   const useCase = new ShortenUrl({
-    repository,
-    generator: new SequenceGenerator(options.codes ?? ["abc1234"]),
+    shortLinkRepository,
+    shortCodeGenerator: new SequenceGenerator(options.codes ?? ["abc1234"]),
     clock,
     ownHost: options.ownHost ?? "sho.rt",
     maxAttempts: options.maxAttempts,
   });
-  return { useCase, repository };
+  return { useCase, shortLinkRepository };
 }
 
 describe("ShortenUrl", () => {
   it("returns the new short code with its destination", async () => {
-    const { useCase, repository } = build();
+    const { useCase, shortLinkRepository } = build();
 
     const result = await useCase.execute({ url: "https://example.com/page" });
 
     expect(result).toEqual({ code: "abc1234", destination: "https://example.com/page" });
-    expect(repository.saved).toHaveLength(1);
-    expect(repository.saved[0].createdAt).toEqual(NOW);
-    expect(repository.saved[0].destination.equals(DestinationUrl.create("https://example.com/page"))).toBe(true);
+    expect(shortLinkRepository.saved).toHaveLength(1);
+    expect(shortLinkRepository.saved[0].createdAt).toEqual(NOW);
+    expect(shortLinkRepository.saved[0].destination.equals(DestinationUrl.create("https://example.com/page"))).toBe(true);
   });
 
   it("returns the normalized destination that was actually stored", async () => {
@@ -86,7 +86,7 @@ describe("ShortenUrl", () => {
   });
 
   it("retries with a new code after a collision", async () => {
-    const { useCase, repository } = build({
+    const { useCase, shortLinkRepository } = build({
       codes: ["taken11", "free222"],
       failures: [collision("taken11")],
     });
@@ -94,29 +94,29 @@ describe("ShortenUrl", () => {
     const result = await useCase.execute({ url: "https://example.com" });
 
     expect(result.code).toBe("free222");
-    expect(repository.saveAttempts).toBe(2);
-    expect(repository.saved[0].code.equals(new ShortCode("free222"))).toBe(true);
+    expect(shortLinkRepository.saveAttempts).toBe(2);
+    expect(shortLinkRepository.saved[0].code.equals(new ShortCode("free222"))).toBe(true);
   });
 
   it("stops retrying when a collision is followed by another kind of failure", async () => {
     const boom = new Error("database down");
-    const { useCase, repository } = build({
+    const { useCase, shortLinkRepository } = build({
       codes: ["taken11", "free222"],
       failures: [collision("taken11"), boom],
     });
 
     await expect(useCase.execute({ url: "https://example.com" })).rejects.toBe(boom);
-    expect(repository.saveAttempts).toBe(2);
+    expect(shortLinkRepository.saveAttempts).toBe(2);
   });
 
   it("gives up after the maximum number of attempts when every code collides", async () => {
     const failures = Array.from({ length: 10 }, () => collision("taken11"));
-    const { useCase, repository } = build({ failures, maxAttempts: 3 });
+    const { useCase, shortLinkRepository } = build({ failures, maxAttempts: 3 });
 
     await expect(useCase.execute({ url: "https://example.com" })).rejects.toBeInstanceOf(
       ShortCodeGenerationExhaustedError,
     );
-    expect(repository.saveAttempts).toBe(3);
+    expect(shortLinkRepository.saveAttempts).toBe(3);
   });
 
   it("reports the last collision as the cause when attempts run out", async () => {
@@ -130,27 +130,27 @@ describe("ShortenUrl", () => {
 
   it("allows 5 attempts by default", async () => {
     const failures = Array.from({ length: 10 }, () => collision("taken11"));
-    const { useCase, repository } = build({ failures });
+    const { useCase, shortLinkRepository } = build({ failures });
 
     await expect(useCase.execute({ url: "https://example.com" })).rejects.toBeInstanceOf(
       ShortCodeGenerationExhaustedError,
     );
-    expect(repository.saveAttempts).toBe(5);
+    expect(shortLinkRepository.saveAttempts).toBe(5);
   });
 
   it("does not retry when saving fails for a reason other than a collision", async () => {
     const boom = new Error("database down");
-    const { useCase, repository } = build({ failures: [boom] });
+    const { useCase, shortLinkRepository } = build({ failures: [boom] });
 
     await expect(useCase.execute({ url: "https://example.com" })).rejects.toBe(boom);
-    expect(repository.saveAttempts).toBe(1);
+    expect(shortLinkRepository.saveAttempts).toBe(1);
   });
 
   it("rejects an invalid destination URL", async () => {
-    const { useCase, repository } = build();
+    const { useCase, shortLinkRepository } = build();
 
     await expect(useCase.execute({ url: "not a url" })).rejects.toBeInstanceOf(InvalidDestinationUrlError);
-    expect(repository.saveAttempts).toBe(0);
+    expect(shortLinkRepository.saveAttempts).toBe(0);
   });
 
   it.each([
@@ -165,10 +165,10 @@ describe("ShortenUrl", () => {
     ["https://sho.rt/x", "https://sho.rt"],
     ["https://sho.rt/x", "https://Sho.Rt:8443/"],
   ])("rejects a link to the service itself: %s (own host %s)", async (url, ownHost) => {
-    const { useCase, repository } = build({ ownHost });
+    const { useCase, shortLinkRepository } = build({ ownHost });
 
     await expect(useCase.execute({ url })).rejects.toBeInstanceOf(SelfReferencingUrlError);
-    expect(repository.saveAttempts).toBe(0);
+    expect(shortLinkRepository.saveAttempts).toBe(0);
   });
 
   it.each([

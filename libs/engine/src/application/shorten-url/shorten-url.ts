@@ -19,8 +19,8 @@ export interface ShortenUrlOutput {
 }
 
 export interface ShortenUrlDependencies {
-  repository: ShortLinkRepository;
-  generator: ShortCodeGenerator;
+  shortLinkRepository: ShortLinkRepository;
+  shortCodeGenerator: ShortCodeGenerator;
   clock: Clock;
   /** This service's host ("sho.rt", "localhost:3000" or "https://sho.rt"); links pointing back to it are rejected. */
   ownHost: string;
@@ -30,15 +30,15 @@ export interface ShortenUrlDependencies {
 const DEFAULT_MAX_ATTEMPTS = 5;
 
 export class ShortenUrl {
-  private readonly repository: ShortLinkRepository;
-  private readonly generator: ShortCodeGenerator;
+  private readonly shortLinkRepository: ShortLinkRepository;
+  private readonly shortCodeGenerator: ShortCodeGenerator;
   private readonly clock: Clock;
   private readonly ownHost: string;
   private readonly maxAttempts: number;
 
   constructor(dependencies: ShortenUrlDependencies) {
-    this.repository = dependencies.repository;
-    this.generator = dependencies.generator;
+    this.shortLinkRepository = dependencies.shortLinkRepository;
+    this.shortCodeGenerator = dependencies.shortCodeGenerator;
     this.clock = dependencies.clock;
     this.ownHost = parseOwnHost(dependencies.ownHost);
     this.maxAttempts = dependencies.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
@@ -57,12 +57,12 @@ export class ShortenUrl {
     let lastCollision: ShortCodeAlreadyExistsError | undefined;
     for (let attempt = 0; attempt < this.maxAttempts; attempt++) {
       const link = ShortLink.create({
-        code: this.generator.generate(),
+        code: this.shortCodeGenerator.generate(),
         destination,
         createdAt,
       });
       try {
-        await this.repository.save(link);
+        await this.shortLinkRepository.save(link);
         return { code: link.code.value, destination: link.destination.value };
       } catch (error) {
         if (!(error instanceof ShortCodeAlreadyExistsError)) throw error;
