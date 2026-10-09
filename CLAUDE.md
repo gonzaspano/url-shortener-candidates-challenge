@@ -28,7 +28,7 @@ pnpm --filter @url-shortener/engine db:migrate  # create a migration after editi
 ## Conventions
 
 - Strict TDD on the engine: write the failing test first. Unit tests sit next to the code (`*.test.ts`); database tests are `*.integration.test.ts`.
-- Minimal code comments. Put the "why" in commit messages or ADRs, not in the code.
+- Comment only non-obvious decisions (e.g. security rules, edge cases). Broader reasoning goes in commit messages or ADRs.
 - Conventional commits, one reviewable unit per commit, body explains the reasoning.
 - Do not push or open PRs unless explicitly asked.
 - Code, UI copy and docs in English.
