@@ -15,3 +15,5 @@ export {
   type ResolveShortLinkInput,
   type ResolveShortLinkOutput,
 } from "./resolve-short-link/resolve-short-link";
+export type { ShortLinkStats, ShortLinkStatsQuery } from "./ports/short-link-stats.query";
+export { ListShortLinks, type ListShortLinksDependencies } from "./list-short-links/list-short-links";
