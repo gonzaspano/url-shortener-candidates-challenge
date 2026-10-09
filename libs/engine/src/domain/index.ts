@@ -2,7 +2,6 @@ export { DomainError } from "./errors/domain-error";
 export { InvalidDestinationUrlError } from "./errors/invalid-destination-url.error";
 export { InvalidShortCodeError } from "./errors/invalid-short-code.error";
 export { ShortCodeAlreadyExistsError } from "./errors/short-code-already-exists.error";
-export { ShortLinkNotFoundError } from "./errors/short-link-not-found.error";
 export { Click, type ClickPrimitives } from "./click/click";
 export type { ClickRepository } from "./click/click.repository";
 export { DestinationUrl } from "./short-link/destination-url";

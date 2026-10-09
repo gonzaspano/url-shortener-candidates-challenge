@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 import type { Route } from "./+types/s.$code";
-import { ShortLinkNotFoundError } from "@url-shortener/engine/domain";
+import { ShortLinkNotFoundError } from "@url-shortener/engine/application";
 import { container } from "~/.server/container";
 
 const MAX_CODE_LENGTH = 64;

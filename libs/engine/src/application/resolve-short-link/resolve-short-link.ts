@@ -1,10 +1,10 @@
 import {
   Click,
   ShortCode,
-  ShortLinkNotFoundError,
   type ClickRepository,
   type ShortLinkRepository,
 } from "../../domain";
+import { ShortLinkNotFoundError } from "../errors/short-link-not-found.error";
 import type { Clock } from "../ports/clock";
 import type { Logger } from "../ports/logger";
 

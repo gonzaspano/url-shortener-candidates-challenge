@@ -1,6 +1,7 @@
 export { ApplicationError } from "./errors/application-error";
 export { SelfReferencingUrlError } from "./errors/self-referencing-url.error";
 export { ShortCodeGenerationExhaustedError } from "./errors/short-code-generation-exhausted.error";
+export { ShortLinkNotFoundError } from "./errors/short-link-not-found.error";
 export type { Clock } from "./ports/clock";
 export {
   ShortenUrl,
