@@ -1,32 +1,38 @@
-import { Form, useActionData } from "react-router";
+import { data, Form, useActionData } from "react-router";
 import type { Route } from "./+types/_index";
-import {
-  baseUrl,
-  shortenedUrls,
-  generateShortCode,
-} from "@url-shortener/engine";
+import { container } from "~/.server/container";
+import { toUserError } from "~/.server/present-error";
 
 export function loader() {
   return {
-    baseUrl: baseUrl ? baseUrl + "/s/" : "-",
+    baseUrl: `${container.publicUrl}/s/`,
   };
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const url = formData.get("url") as string;
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return data({ error: "Invalid form submission" }, { status: 400 });
+  }
+  const url = formData.get("url");
 
-  if (!url) {
-    return { error: "URL is required" };
+  if (typeof url !== "string") {
+    return data({ error: "URL is required" }, { status: 400 });
   }
 
-  const shortCode = generateShortCode();
-
-  shortenedUrls.set(shortCode, url);
-
-  return {
-    shortenedUrl: `${baseUrl}/s/${shortCode}`,
-  };
+  try {
+    const { code, destination } = await container.shortenUrl.execute({ url });
+    return {
+      shortenedUrl: `${container.publicUrl}/s/${code}`,
+      destination,
+    };
+  } catch (error) {
+    const message = toUserError(error);
+    if (message === null) throw error;
+    return data({ error: message }, { status: 400 });
+  }
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -69,7 +75,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </div>
         </Form>
 
-        {actionData?.shortenedUrl && (
+        {actionData && "shortenedUrl" in actionData && (
           <div className="mt-8 p-4 bg-violet-400 rounded-3xl border-4 border-double border-yellow-500 -rotate-1">
             <p className="text-lg text-lime-300 mb-2 font-black uppercase">
               Your shortened URL:
@@ -85,7 +91,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </div>
         )}
 
-        {actionData?.error && (
+        {actionData && "error" in actionData && (
           <div className="mt-8 p-4 bg-lime-500 rounded-none border-8 border-solid border-red-700">
             <p className="text-2xl text-blue-800 font-black">
               {actionData.error}
