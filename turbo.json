@@ -2,17 +2,46 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**"]
+      "dependsOn": [
+        "^build",
+        "db:generate"
+      ],
+      "outputs": [
+        "dist/**",
+        "build/**"
+      ]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": [
+        "^db:generate"
+      ]
     },
-    "typecheck": {},
-    "test": {},
+    "typecheck": {
+      "dependsOn": [
+        "^db:generate",
+        "db:generate"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^db:generate",
+        "db:generate"
+      ]
+    },
     "clean": {
       "cache": false
+    },
+    "db:generate": {
+      "inputs": [
+        "prisma/schema.prisma",
+        "prisma.config.ts",
+        "package.json"
+      ],
+      "outputs": [
+        "src/infrastructure/persistence/prisma/generated/**"
+      ]
     }
   }
 }
