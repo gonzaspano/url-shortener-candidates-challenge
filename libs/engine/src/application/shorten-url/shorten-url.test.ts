@@ -161,7 +161,7 @@ describe("ShortenUrl", () => {
     ["https://sho.rt:8080/x", "sho.rt"],
     ["https://sho.rt/x", "SHO.RT"],
     ["https://sho.rt/x", "sho.rt."],
-    ["http://localhost:4000/x", "localhost:3000"],
+    ["http://sho.rt:4000/x", "sho.rt:3000"],
     ["https://sho.rt/x", "https://sho.rt"],
     ["https://sho.rt/x", "https://Sho.Rt:8443/"],
   ])("rejects a link to the service itself: %s (own host %s)", async (url, ownHost) => {

@@ -27,13 +27,18 @@ describe("DestinationUrl", () => {
     ["embedded tab", "https://exa\tmple.com"],
     ["embedded newline", "https://example.com/a\nb"],
     ["null byte", "https://example.com/\u0000"],
+    ["single-label host", "http://a"],
+    ["localhost", "http://localhost:3000/admin"],
+    ["intranet host", "http://jira/browse/X-1"],
+    ["IPv4 literal", "http://192.168.0.1/apply.cgi"],
+    ["loopback IPv4", "http://127.0.0.1:8080"],
+    ["IPv6 literal", "http://[::1]/"],
+    ["public IPv6 literal", "http://[2001:db8::1]:8080/x"],
   ])("rejects %s", (_label, input) => {
     expect(() => DestinationUrl.create(input)).toThrow(InvalidDestinationUrlError);
   });
 
   it.each([
-    ["http://[::1]/", "http://[::1]/"],
-    ["http://[2001:db8::1]:8080/x", "http://[2001:db8::1]:8080/x"],
     ["https://münchen.de", "https://xn--mnchen-3ya.de/"],
     ["HtTpS://Example.com", "https://example.com/"],
     ["https://example.com:443/a", "https://example.com/a"],

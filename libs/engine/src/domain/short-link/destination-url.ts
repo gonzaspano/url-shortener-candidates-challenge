@@ -5,6 +5,7 @@ export class DestinationUrl {
 
   // Only web schemes: javascript:, data:, file: etc. would turn a redirect into an attack vector.
   private static readonly ALLOWED_PROTOCOLS = ["http:", "https:"];
+  private static readonly IP_LITERAL = /^(\d{1,3}(\.\d{1,3}){3}|\[.*\])$/;
 
   /** Trusted instantiation: does NOT validate (use `create` for new or user-provided input). */
   constructor(readonly value: string) {}
@@ -38,6 +39,13 @@ export class DestinationUrl {
     }
     if (url.hostname.length === 0) {
       throw new InvalidDestinationUrlError("must have a hostname");
+    }
+    const host = url.hostname.replace(/\.$/, "");
+    if (!host.includes(".")) {
+      throw new InvalidDestinationUrlError("must use a public domain name");
+    }
+    if (DestinationUrl.IP_LITERAL.test(host)) {
+      throw new InvalidDestinationUrlError("must use a domain name, not an IP address");
     }
 
     if (url.username || url.password) {
