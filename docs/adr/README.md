@@ -13,3 +13,4 @@ Add a new ADR instead of rewriting an accepted one; mark the old one as supersed
 | [0006](0006-postgres-and-prisma.md) | PostgreSQL with Prisma 7 and versioned migrations |
 | [0007](0007-docker-runtime.md) | Docker runtime: migrations on startup, hardened image |
 | [0008](0008-ui-primitives-and-stats-route.md) | Hand-written UI primitives and stats on their own route |
+| [0009](0009-default-scheme-in-web-adapter.md) | Default https scheme added in the web adapter, domain stays strict |

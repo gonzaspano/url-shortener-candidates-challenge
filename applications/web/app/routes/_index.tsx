@@ -2,6 +2,7 @@ import { data } from "react-router";
 import type { Route } from "./+types/_index";
 import { container } from "~/.server/container";
 import { toUserError } from "~/.server/present-error";
+import { withDefaultScheme } from "~/.server/with-default-scheme";
 import { ShortenForm } from "~/components/shorten-form";
 import { Card } from "~/components/ui/card";
 
@@ -25,7 +26,9 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const { code, destination } = await container.shortenUrl.execute({ url });
+    const { code, destination } = await container.shortenUrl.execute({
+      url: withDefaultScheme(url),
+    });
     return {
       shortenedUrl: `${container.publicUrl}/s/${code}`,
       destination,

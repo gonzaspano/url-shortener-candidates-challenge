@@ -39,9 +39,13 @@ export function ShortenForm({ baseUrl }: { baseUrl: string }) {
           <Input
             id="url"
             name="url"
-            type="url"
+            type="text"
+            inputMode="url"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             required
-            placeholder="https://example.com/a/very/long/url"
+            placeholder="example.com/a/very/long/url"
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "url-error" : "url-hint"}
           />
